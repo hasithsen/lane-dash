@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lane Switch Game</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #333;
+    }
+    canvas {
+      display: block;
+      background-color: #555;
+    }
+    .score {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: white;
+      font-size: 24px;
+      font-family: Arial, sans-serif;
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="gameCanvas"></canvas>
+  <div class="score" id="score">Score: 0</div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Adjust canvas for portrait orientation
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Game variables
+    let laneWidth = canvas.width / 2;
+    let vehicleWidth = 100;
+    let vehicleHeight = 40;
+    let vehicleX = laneWidth / 2 - vehicleWidth / 2; // Start in left lane
+    let vehicleY = canvas.height - vehicleHeight - 30; // Bottom of screen
+    let currentLane = 0; // 0 for left lane, 1 for right lane
+
+    let obstacles = [];
+    let obstacleSpeed = 5;
+    let score = 0;
+    let gameOver = false;
+    let lastObstacleTime = 0; // Time of last obstacle spawn
+    const minObstacleGap = 800; // Minimum distance between obstacles
+
+    // Road line variables
+    let lineHeight = 20;
+    let lineSpacing = 30;
+    let lineY = 0; // For scrolling effect
+
+    // Load vehicle and truck images
+    const vehicleImg = new Image();
+    vehicleImg.src = './assets/img/sedan.png'; // Car icon
+
+    const truckImg = new Image();
+    truckImg.src = './assets/img/truck.png'; // Truck icon
+
+    // Function to switch lanes on tap/click
+    canvas.addEventListener('click', () => {
+      if (gameOver) return; // No switching if game is over
+      currentLane = currentLane === 0 ? 1 : 0;
+      vehicleX = currentLane === 0 ? laneWidth / 2 - vehicleWidth / 2 : laneWidth + laneWidth / 2 - vehicleWidth / 2;
+    });
+
+    // Function to create new obstacles (only one lane at a time with a gap)
+    function createObstacle() {
+      const currentTime = Date.now();
+
+      // Ensure a gap between obstacles
+      if (currentTime - lastObstacleTime < minObstacleGap) return;
+
+      // Randomly select a lane
+      const lane = Math.floor(Math.random() * 2); // Choose between 0 and 1
+      const obstacleX = lane === 0 ? laneWidth / 2 - vehicleWidth / 2 : laneWidth + laneWidth / 2 - vehicleWidth / 2;
+      
+      obstacles.push({
+        x: obstacleX,
+        y: -vehicleHeight, // Start just above screen
+        width: vehicleWidth,
+        height: vehicleHeight
+      });
+
+      lastObstacleTime = currentTime; // Update the last obstacle spawn time
+    }
+
+    // Function to check for collisions
+    function checkCollision() {
+      for (let i = 0; i < obstacles.length; i++) {
+        const obs = obstacles[i];
+        if (
+          vehicleX < obs.x + obs.width &&
+          vehicleX + vehicleWidth > obs.x &&
+          vehicleY < obs.y + obs.height &&
+          vehicleY + vehicleHeight > obs.y
+        ) {
+          gameOver = true;
+        }
+      }
+    }
+
+    // Main game loop
+    function gameLoop() {
+      if (gameOver) {
+        alert('Game Over! Final Score: ' + score);
+        document.location.reload(); // Reload game
+        return;
+      }
+
+      // Clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw the road's middle line (scrolling effect)
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = 5;
+      ctx.setLineDash([lineHeight, lineSpacing]);
+      ctx.beginPath();
+      ctx.moveTo(canvas.width / 2, lineY);
+      ctx.lineTo(canvas.width / 2, canvas.height);
+      ctx.stroke();
+      ctx.closePath();
+      lineY += obstacleSpeed;
+      if (lineY > lineHeight + lineSpacing) {
+        lineY = 0;
+      }
+        
+      // Draw player vehicle
+      ctx.drawImage(vehicleImg, vehicleX, vehicleY, vehicleWidth/1.5, vehicleHeight/1.5);
+
+      // Draw obstacles
+      for (let i = 0; i < obstacles.length; i++) {
+        const obs = obstacles[i];
+        ctx.drawImage(truckImg, obs.x, obs.y, obs.width, obs.height);
+        obs.y += obstacleSpeed;
+
+        // Remove obstacles that go off screen
+        if (obs.y > canvas.height) {
+          obstacles.splice(i, 1);
+          i--;
+          score++;
+        }
+      }
+
+      // Check for collisions
+      checkCollision();
+
+      // Update score
+      document.getElementById('score').textContent = 'Score: ' + score;
+
+      // Create new obstacles periodically with a gap
+      if (Math.random() < 0.02) {
+        createObstacle();
+      }
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Start the game loop
+    gameLoop();
+
+    // Adjust canvas size on window resize
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
+
+</body>
+</html>
