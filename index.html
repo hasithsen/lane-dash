@@ -38,6 +38,11 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
+    // Audio files
+    const switchSound = new Audio('./assets/audio/tone1.ogg');
+    const coinSound = new Audio('./assets/audio/powerUp8.ogg');
+    const gameOverSound = new Audio('./assets/audio/powerUp11.ogg');
+
     // Game variables
     let laneWidth = canvas.width / 2;
     let vehicleWidth = 100;
@@ -85,6 +90,10 @@
       if (gameOver) return; // No switching if game is over
       currentLane = currentLane === 0 ? 1 : 0;
       vehicleX = currentLane === 0 ? laneWidth / 2 - vehicleWidth / 2 : laneWidth + laneWidth / 2 - vehicleWidth / 2;
+
+      // Reset and play switch sound
+      switchSound.currentTime = 0;
+      switchSound.play();
     });
 
     // Function to create new obstacles (only one lane at a time with a gap)
@@ -132,6 +141,8 @@
           vehicleY < obs.y + obs.height &&
           vehicleY + vehicleHeight > obs.y
         ) {
+          // Play game over sound
+          gameOverSound.play();
           gameOver = true;
         }
       }
@@ -153,6 +164,9 @@
 
           // Save coin count to localStorage
           localStorage.setItem('score', score);
+
+          // Play coin collection sound
+          coinSound.play();
 
           // Create dopamine particles on coin collection
           createParticles(coin.x + coin.size / 2, coin.y + coin.size / 2);
@@ -237,7 +251,7 @@
       }
 
       // Draw player vehicle
-      ctx.drawImage(vehicleImg, vehicleX, vehicleY, vehicleWidth/1.5, vehicleHeight/1.5);
+      ctx.drawImage(vehicleImg, vehicleX, vehicleY, vehicleWidth / 1.5, vehicleHeight / 1.5);
 
       // Draw player vehicle collision box
       // drawCollisionBox(vehicleX, vehicleY, vehicleWidth / 1.5, vehicleHeight / 1.5, 'rgba(255, 0, 0, 0.5)'); // Red box for player
