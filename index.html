@@ -55,13 +55,14 @@
     let score = 0;
     let gameOver = false;
     let lastObstacleTime = 0; // Time of last obstacle spawn
-    const minObstacleGap = 500; // Minimum distance between obstacles
+    const minObstacleGap = 800; // Minimum distance between obstacles
 
     let coins = [];
     let coinSize = 30;
     let coinSpeed = 5;
     let lastCoinTime = 0;
     const minCoinGap = 1000; // Minimum distance between coins
+    const coinSwitchInterval = 100; // Interval for coin to slowly change lanes
 
     // Load vehicle and truck images
     const vehicleImg = new Image();
@@ -121,10 +122,30 @@
       coins.push({
         x: coinX,
         y: -coinSize, // Start just above the screen
-        size: coinSize
+        size: coinSize,
+        lane: lane, // Store initial lane of the coin
+        switchDirection: Math.random() > 0.5 ? 1 : -1, // Randomize switch direction
+        switchTime: 0 // Track when the coin last switched lanes
       });
 
       lastCoinTime = currentTime;
+    }
+
+    // Function to switch lanes for coins slowly
+    function switchCoinLanes(coin) {
+      const currentTime = Date.now();
+      if (currentTime - coin.switchTime > coinSwitchInterval) {
+        // Move the coin horizontally towards the other lane
+        const targetX = coin.lane === 0 ? laneWidth + laneWidth / 2 - coinSize / 2 : laneWidth / 2 - coinSize / 2;
+        coin.x += coin.switchDirection * 2; // Adjust speed of horizontal movement
+
+        // If the coin reaches the target lane, reverse direction
+        if ((coin.switchDirection === 1 && coin.x >= targetX) || (coin.switchDirection === -1 && coin.x <= targetX)) {
+          coin.switchDirection *= -1; // Reverse lane switching direction
+        }
+
+        coin.switchTime = currentTime; // Update switch time
+      }
     }
 
     // Function to check for collisions
@@ -212,7 +233,7 @@
     // Main game loop
     function gameLoop() {
       if (gameOver) {
-        alert('Game Over! Final Score: ' + score);
+        // alert('Game Over! Final Score: ' + score);
         document.location.reload(); // Reload game
         return;
       }
