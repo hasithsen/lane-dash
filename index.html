@@ -15,7 +15,7 @@
       display: block;
       background-color: #555;
     }
-    .score, .coins {
+    .score {
       position: absolute;
       top: 10px;
       left: 10px;
@@ -23,16 +23,12 @@
       font-size: 24px;
       font-family: Arial, sans-serif;
     }
-    .coins {
-      left: 150px;
-    }
   </style>
 </head>
 <body>
 
   <canvas id="gameCanvas"></canvas>
   <div class="score" id="score">Score: 0</div>
-  <div class="coins" id="coin-count">Coins: 0</div>
 
   <script>
     const canvas = document.getElementById('gameCanvas');
@@ -52,7 +48,6 @@
 
     let obstacles = [];
     let obstacleSpeed = 5;
-    let score = 0;
     let gameOver = false;
     let lastObstacleTime = 0; // Time of last obstacle spawn
     const minObstacleGap = 500; // Minimum distance between obstacles
@@ -73,9 +68,9 @@
     const coinImg = new Image();
     coinImg.src = './assets/img/coin.png'; // Coin icon
 
-    // Retrieve coin count from localStorage or initialize to 0
-    let coinCount = localStorage.getItem('coinCount') ? parseInt(localStorage.getItem('coinCount')) : 0;
-    document.getElementById('coin-count').textContent = 'Coins: ' + coinCount;
+    // Retrieve score from localStorage or initialize to 0
+    let score = localStorage.getItem('score') ? parseInt(localStorage.getItem('score')) : 0;
+    document.getElementById('score').textContent = 'Score: ' + score;
 
     // Road line variables
     let lineHeight = 20;
@@ -153,11 +148,11 @@
           vehicleY + vehicleHeight > coin.y
         ) {
           // Coin collected
-          coinCount++;
-          document.getElementById('coin-count').textContent = 'Coins: ' + coinCount;
+          score += 10;
+          document.getElementById('score').textContent = 'Score: ' + score;
 
           // Save coin count to localStorage
-          localStorage.setItem('coinCount', coinCount);
+          localStorage.setItem('score', score);
 
           // Create dopamine particles on coin collection
           createParticles(coin.x + coin.size / 2, coin.y + coin.size / 2);
