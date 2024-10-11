@@ -48,8 +48,7 @@
     let vehicleHeight = 40;
     let vehicleX = laneWidth / 2 - vehicleWidth / 2; // Start in left lane
     let vehicleY = canvas.height - vehicleHeight - 30; // Bottom of screen
-    let targetLane = 0; // 0 for left lane, 1 for right lane
-    const laneChangeSpeed = 30; // Speed of lane change
+    let currentLane = 0; // 0 for left lane, 1 for right lane
 
     let obstacles = [];
     let obstacleSpeed = 5;
@@ -90,7 +89,8 @@
     // Function to switch lanes on tap/click
     canvas.addEventListener('click', () => {
       if (gameOver) return; // No switching if game is over
-      targetLane = targetLane === 0 ? 1 : 0; // Toggle between lanes
+      currentLane = currentLane === 0 ? 1 : 0;
+      vehicleX = currentLane === 0 ? laneWidth / 2 - vehicleWidth / 2 : laneWidth + laneWidth / 2 - vehicleWidth / 2;
     });
 
     // Function to create new obstacles (only one lane at a time with a gap)
@@ -169,9 +169,9 @@
         const coin = coins[i];
         if (
           vehicleX < coin.x + coin.size &&
-          vehicleX + vehicleWidth > coin.x &&
+          vehicleX + vehicleWidth > coin.x + coin.size &&
           vehicleY < coin.y + coin.size &&
-          vehicleY + vehicleHeight > coin.y
+          vehicleY + vehicleHeight > coin.y + coin.size
         ) {
           // Coin collected
           coinCount++;
@@ -252,22 +252,6 @@
       drawCollisionBox(coin.x, coin.y, coin.size, coin.size, 'rgba(0, 0, 255, 0.5)'); // Blue box for coins
     }
 
-    // Function to smoothly change lanes
-    function updateLanePosition() {
-      const targetX = targetLane === 0 
-        ? laneWidth / 2 - vehicleWidth / 2 
-        : laneWidth + laneWidth / 2 - vehicleWidth / 2;
-
-      // Interpolate vehicle's X position towards target position
-      if (vehicleX < targetX) {
-        vehicleX += laneChangeSpeed;
-        if (vehicleX > targetX) vehicleX = targetX; // Snap to target if overshoot
-      } else if (vehicleX > targetX) {
-        vehicleX -= laneChangeSpeed;
-        if (vehicleX < targetX) vehicleX = targetX; // Snap to target if overshoot
-      }
-    }
-
     // Main game loop
     function gameLoop() {
       if (gameOver) {
@@ -292,10 +276,7 @@
       if (lineY > lineHeight + lineSpacing) {
         lineY = 0;
       }
-
-      // Update vehicle's position for lane change
-      updateLanePosition();
-
+        
       // Draw player vehicle
       ctx.drawImage(vehicleImg, vehicleX, vehicleY, vehicleWidth / 1.5, vehicleHeight / 1.5);
 
@@ -365,8 +346,6 @@
     window.addEventListener('resize', () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-      laneWidth = canvas.width / 2; // Update lane width on resize
-      vehicleX = targetLane === 0 ? laneWidth / 2 - vehicleWidth / 2 : laneWidth + laneWidth / 2 - vehicleWidth / 2; // Update vehicle position
     });
   </script>
 
