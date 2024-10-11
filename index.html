@@ -132,34 +132,39 @@
     // Function to create particles for dopamine burst animation
     function createParticles(x, y) {
       for (let i = 0; i < 20; i++) { // Create 20 particles
+        const angle = Math.random() * Math.PI * 2; // Random angle in radians (0 to 2π)
+        const speed = Math.random() * 4 + 1; // Random speed (1 to 5)
+
         particles.push({
           x: x,
           y: y,
           size: Math.random() * 5 + 2, // Random size
-          speedX: (Math.random() - 0.5) * 8, // Random horizontal speed
-          speedY: (Math.random() - 0.5) * 8, // Random vertical speed
+          speedX: Math.cos(angle) * speed, // Random horizontal speed based on angle
+          speedY: Math.sin(angle) * speed, // Random vertical speed based on angle
           color: 'yellow', // Color for particles
+          opacity: 1, // Initial opacity
           life: 30 // Particle life
         });
       }
     }
 
-    // Function to update and draw particles
+    // Function to update and draw particles with fade-out effect
     function updateParticles() {
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
         p.x += p.speedX;
         p.y += p.speedY;
+        p.opacity -= 0.03; // Gradually reduce opacity
         p.life--;
 
-        // Draw the particle
-        ctx.fillStyle = p.color;
+        // Draw the particle with fading opacity
+        ctx.fillStyle = `rgba(255, 255, 0, ${p.opacity})`; // Yellow color with variable opacity
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
 
-        // Remove particles when life ends
-        if (p.life <= 0) {
+        // Remove particles when life ends or fully faded
+        if (p.life <= 0 || p.opacity <= 0) {
           particles.splice(i, 1);
           i--;
         }
