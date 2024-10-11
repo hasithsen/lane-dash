@@ -61,8 +61,7 @@
     let coinSize = 30;
     let coinSpeed = 5;
     let lastCoinTime = 0;
-    const minCoinGap = 800; // Minimum distance between coins
-    const coinSwitchInterval = 100; // Interval for coin to slowly change lanes
+    const minCoinGap = 1000; // Minimum distance between coins
 
     // Load vehicle and truck images
     const vehicleImg = new Image();
@@ -122,30 +121,10 @@
       coins.push({
         x: coinX,
         y: -coinSize, // Start just above the screen
-        size: coinSize,
-        lane: lane, // Store initial lane of the coin
-        switchDirection: Math.random() > 0.5 ? 1 : -1, // Randomize switch direction
-        switchTime: 0 // Track when the coin last switched lanes
+        size: coinSize
       });
 
       lastCoinTime = currentTime;
-    }
-
-    // Function to switch lanes for coins slowly
-    function switchCoinLanes(coin) {
-      const currentTime = Date.now();
-      if (currentTime - coin.switchTime > coinSwitchInterval) {
-        // Move the coin horizontally towards the other lane
-        const targetX = coin.lane === 0 ? laneWidth + laneWidth / 2 - coinSize / 2 : laneWidth / 2 - coinSize / 2;
-        coin.x += coin.switchDirection * 2; // Adjust speed of horizontal movement
-
-        // If the coin reaches the target lane, reverse direction
-        if ((coin.switchDirection === 1 && coin.x >= targetX) || (coin.switchDirection === -1 && coin.x <= targetX)) {
-          coin.switchDirection *= -1; // Reverse lane switching direction
-        }
-
-        coin.switchTime = currentTime; // Update switch time
-      }
     }
 
     // Function to check for collisions
@@ -169,9 +148,9 @@
         const coin = coins[i];
         if (
           vehicleX < coin.x + coin.size &&
-          vehicleX + vehicleWidth > coin.x + coin.size &&
+          vehicleX + vehicleWidth > coin.x &&
           vehicleY < coin.y + coin.size &&
-          vehicleY + vehicleHeight > coin.y + coin.size
+          vehicleY + vehicleHeight > coin.y
         ) {
           // Coin collected
           coinCount++;
@@ -222,7 +201,7 @@
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
 
-        // Remove particles when life ends or fully faded out
+        // Remove particles when life ends or fully faded
         if (p.life <= 0 || p.opacity <= 0) {
           particles.splice(i, 1);
           i--;
@@ -237,25 +216,10 @@
       ctx.strokeRect(x, y, width, height);
     }
 
-    // Draw player vehicle collision box
-    drawCollisionBox(vehicleX, vehicleY, vehicleWidth / 1.5, vehicleHeight / 1.5, 'rgba(255, 0, 0, 0.5)'); // Red box for player
-
-    // Draw obstacles collision boxes
-    for (let i = 0; i < obstacles.length; i++) {
-      const obs = obstacles[i];
-      drawCollisionBox(obs.x, obs.y, obs.width, obs.height, 'rgba(0, 255, 0, 0.5)'); // Green box for obstacles
-    }
-
-    // Draw coins collision boxes
-    for (let i = 0; i < coins.length; i++) {
-      const coin = coins[i];
-      drawCollisionBox(coin.x, coin.y, coin.size, coin.size, 'rgba(0, 0, 255, 0.5)'); // Blue box for coins
-    }
-
     // Main game loop
     function gameLoop() {
       if (gameOver) {
-        alert('Game Over! Final Score: ' + score + ' Coins Collected: ' + coinCount);
+        alert('Game Over! Final Score: ' + score);
         document.location.reload(); // Reload game
         return;
       }
@@ -276,9 +240,9 @@
       if (lineY > lineHeight + lineSpacing) {
         lineY = 0;
       }
-        
+
       // Draw player vehicle
-      ctx.drawImage(vehicleImg, vehicleX, vehicleY, vehicleWidth / 1.5, vehicleHeight / 1.5);
+      ctx.drawImage(vehicleImg, vehicleX, vehicleY, vehicleWidth/1.5, vehicleHeight/1.5);
 
       // Draw player vehicle collision box
       // drawCollisionBox(vehicleX, vehicleY, vehicleWidth / 1.5, vehicleHeight / 1.5, 'rgba(255, 0, 0, 0.5)'); // Red box for player
@@ -300,15 +264,15 @@
         }
       }
 
-      // Draw coins and update their lane switching
+      // Draw coins
       for (let i = 0; i < coins.length; i++) {
         const coin = coins[i];
         ctx.drawImage(coinImg, coin.x, coin.y, coin.size, coin.size);
         coin.y += coinSpeed;
 
-        // Update the coin's lane switching
-        switchCoinLanes(coin);
-
+        // Draw coins collision boxes
+        // drawCollisionBox(coin.x, coin.y, coin.size, coin.size, 'rgba(0, 0, 255, 0.5)'); // Blue box for coins
+        
         // Remove coins that go off screen
         if (coin.y > canvas.height) {
           coins.splice(i, 1);
