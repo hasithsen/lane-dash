@@ -55,13 +55,13 @@
     let score = 0;
     let gameOver = false;
     let lastObstacleTime = 0; // Time of last obstacle spawn
-    const minObstacleGap = 800; // Minimum distance between obstacles
+    const minObstacleGap = 500; // Minimum distance between obstacles
 
     let coins = [];
     let coinSize = 30;
     let coinSpeed = 5;
     let lastCoinTime = 0;
-    const minCoinGap = 1000; // Minimum distance between coins
+    const minCoinGap = 800; // Minimum distance between coins
     const coinSwitchInterval = 100; // Interval for coin to slowly change lanes
 
     // Load vehicle and truck images
@@ -169,9 +169,9 @@
         const coin = coins[i];
         if (
           vehicleX < coin.x + coin.size &&
-          vehicleX + vehicleWidth > coin.x &&
+          vehicleX + vehicleWidth > coin.x + coin.size &&
           vehicleY < coin.y + coin.size &&
-          vehicleY + vehicleHeight > coin.y
+          vehicleY + vehicleHeight > coin.y + coin.size
         ) {
           // Coin collected
           coinCount++;
@@ -230,6 +230,28 @@
       }
     }
 
+    // Function to draw the collision box
+    function drawCollisionBox(x, y, width, height, color) {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x, y, width, height);
+    }
+
+    // Draw player vehicle collision box
+    drawCollisionBox(vehicleX, vehicleY, vehicleWidth / 1.5, vehicleHeight / 1.5, 'rgba(255, 0, 0, 0.5)'); // Red box for player
+
+    // Draw obstacles collision boxes
+    for (let i = 0; i < obstacles.length; i++) {
+      const obs = obstacles[i];
+      drawCollisionBox(obs.x, obs.y, obs.width, obs.height, 'rgba(0, 255, 0, 0.5)'); // Green box for obstacles
+    }
+
+    // Draw coins collision boxes
+    for (let i = 0; i < coins.length; i++) {
+      const coin = coins[i];
+      drawCollisionBox(coin.x, coin.y, coin.size, coin.size, 'rgba(0, 0, 255, 0.5)'); // Blue box for coins
+    }
+
     // Main game loop
     function gameLoop() {
       if (gameOver) {
@@ -258,11 +280,17 @@
       // Draw player vehicle
       ctx.drawImage(vehicleImg, vehicleX, vehicleY, vehicleWidth / 1.5, vehicleHeight / 1.5);
 
+      // Draw player vehicle collision box
+      // drawCollisionBox(vehicleX, vehicleY, vehicleWidth / 1.5, vehicleHeight / 1.5, 'rgba(255, 0, 0, 0.5)'); // Red box for player
+
       // Draw obstacles
       for (let i = 0; i < obstacles.length; i++) {
         const obs = obstacles[i];
         ctx.drawImage(truckImg, obs.x, obs.y, obs.width, obs.height);
         obs.y += obstacleSpeed;
+
+        // Draw obstacle collision boxes
+        // drawCollisionBox(obs.x, obs.y, obs.width, obs.height, 'rgba(0, 255, 0, 0.5)'); // Green box for obstacles
 
         // Remove obstacles that go off screen
         if (obs.y > canvas.height) {
