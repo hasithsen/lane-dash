@@ -222,7 +222,7 @@
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
 
-        // Remove particles when life ends or fully faded
+        // Remove particles when life ends or fully faded out
         if (p.life <= 0 || p.opacity <= 0) {
           particles.splice(i, 1);
           i--;
@@ -233,7 +233,7 @@
     // Main game loop
     function gameLoop() {
       if (gameOver) {
-        // alert('Game Over! Final Score: ' + score);
+        alert('Game Over! Final Score: ' + score + ' Coins Collected: ' + coinCount);
         document.location.reload(); // Reload game
         return;
       }
@@ -254,9 +254,9 @@
       if (lineY > lineHeight + lineSpacing) {
         lineY = 0;
       }
-
+        
       // Draw player vehicle
-      ctx.drawImage(vehicleImg, vehicleX, vehicleY, vehicleWidth/1.5, vehicleHeight/1.5);
+      ctx.drawImage(vehicleImg, vehicleX, vehicleY, vehicleWidth / 1.5, vehicleHeight / 1.5);
 
       // Draw obstacles
       for (let i = 0; i < obstacles.length; i++) {
@@ -272,11 +272,14 @@
         }
       }
 
-      // Draw coins
+      // Draw coins and update their lane switching
       for (let i = 0; i < coins.length; i++) {
         const coin = coins[i];
         ctx.drawImage(coinImg, coin.x, coin.y, coin.size, coin.size);
         coin.y += coinSpeed;
+
+        // Update the coin's lane switching
+        switchCoinLanes(coin);
 
         // Remove coins that go off screen
         if (coin.y > canvas.height) {
