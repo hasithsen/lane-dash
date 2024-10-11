@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lane Switch Game</title>
+  <title>Lane Dash</title>
   <style>
     body, html {
       margin: 0;
@@ -51,19 +51,26 @@
     let score = 0;
     let gameOver = false;
     let lastObstacleTime = 0; // Time of last obstacle spawn
-    const minObstacleGap = 800; // Minimum distance between obstacles
+    const minObstacleGap = 500; // Minimum distance between obstacles
+
+    let coins = []; // Array to store coins
+    let coinGap = 150; // Minimum gap between trucks and coins
+    let lastCoinTime = 0; // Time of last coin spawn
 
     // Road line variables
     let lineHeight = 20;
     let lineSpacing = 30;
     let lineY = 0; // For scrolling effect
 
-    // Load vehicle and truck images
+    // Load images
     const vehicleImg = new Image();
     vehicleImg.src = './assets/img/sedan.png'; // Car icon
 
     const truckImg = new Image();
     truckImg.src = './assets/img/truck.png'; // Truck icon
+
+    const coinImg = new Image();
+    coinImg.src = './assets/img/coin.png'; // Coin icon
 
     // Function to switch lanes on tap/click
     canvas.addEventListener('click', () => {
@@ -93,7 +100,36 @@
       lastObstacleTime = currentTime; // Update the last obstacle spawn time
     }
 
-    // Function to check for collisions
+    // Function to create new coins
+    function createCoin() {
+      const currentTime = Date.now();
+
+      // Ensure a gap between coin spawns
+      if (currentTime - lastCoinTime < minObstacleGap) return;
+
+      // Randomly select a lane for the coin
+      const lane = Math.floor(Math.random() * 2);
+      const coinX = lane === 0 ? laneWidth / 2 - vehicleWidth / 2 : laneWidth + laneWidth / 2 - vehicleWidth / 2;
+      let coinY = -vehicleHeight;
+
+      // Ensure coins don't overlap with trucks
+      for (let obs of obstacles) {
+        if (Math.abs(obs.y - coinY) < coinGap) {
+          return; // If too close to a truck, skip this coin
+        }
+      }
+
+      coins.push({
+        x: coinX,
+        y: coinY,
+        width: 30,
+        height: 30
+      });
+
+      lastCoinTime = currentTime; // Update last coin spawn time
+    }
+
+    // Function to check for collisions with obstacles
     function checkCollision() {
       for (let i = 0; i < obstacles.length; i++) {
         const obs = obstacles[i];
@@ -104,6 +140,23 @@
           vehicleY + vehicleHeight > obs.y
         ) {
           gameOver = true;
+        }
+      }
+    }
+
+    // Function to check if player collects coins
+    function checkCoinCollection() {
+      for (let i = 0; i < coins.length; i++) {
+        const coin = coins[i];
+        if (
+          vehicleX < coin.x + coin.width &&
+          vehicleX + vehicleWidth > coin.x &&
+          vehicleY < coin.y + coin.height &&
+          vehicleY + vehicleHeight > coin.y
+        ) {
+          // Player collected the coin
+          coins.splice(i, 1); // Remove coin from array
+          score += 10; // Add score for collecting coin
         }
       }
     }
@@ -134,7 +187,7 @@
       }
         
       // Draw player vehicle
-      ctx.drawImage(vehicleImg, vehicleX, vehicleY, vehicleWidth/1.5, vehicleHeight/1.5);
+      ctx.drawImage(vehicleImg, vehicleX, vehicleY, vehicleWidth / 1.5, vehicleHeight / 1.5);
 
       // Draw obstacles
       for (let i = 0; i < obstacles.length; i++) {
@@ -150,8 +203,23 @@
         }
       }
 
-      // Check for collisions
+      // Draw coins
+      for (let i = 0; i < coins.length; i++) {
+        const coin = coins[i];
+        ctx.drawImage(coinImg, coin.x, coin.y, coin.width, coin.height);
+        coin.y += obstacleSpeed;
+
+        // Remove coins that go off screen
+        if (coin.y > canvas.height) {
+          coins.splice(i, 1);
+        }
+      }
+
+      // Check for collisions with obstacles
       checkCollision();
+
+      // Check if player collects coins
+      checkCoinCollection();
 
       // Update score
       document.getElementById('score').textContent = 'Score: ' + score;
@@ -159,6 +227,11 @@
       // Create new obstacles periodically with a gap
       if (Math.random() < 0.02) {
         createObstacle();
+      }
+
+      // Create new coins periodically with a gap
+      if (Math.random() < 0.01) {
+        createCoin();
       }
 
       requestAnimationFrame(gameLoop);
