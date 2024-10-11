@@ -47,15 +47,15 @@
     let currentLane = 0; // 0 for left lane, 1 for right lane
 
     let obstacles = [];
+    let coins = [];
+    let particles = []; // Array for particle animations
     let obstacleSpeed = 5;
     let score = 0;
     let gameOver = false;
     let lastObstacleTime = 0; // Time of last obstacle spawn
-    const minObstacleGap = 500; // Minimum distance between obstacles
-
-    let coins = []; // Array to store coins
-    let coinGap = 150; // Minimum gap between trucks and coins
     let lastCoinTime = 0; // Time of last coin spawn
+    const minObstacleGap = 500; // Minimum distance between obstacles
+    const coinGap = 150; // Minimum gap between trucks and coins
 
     // Road line variables
     let lineHeight = 20;
@@ -129,6 +129,43 @@
       lastCoinTime = currentTime; // Update last coin spawn time
     }
 
+    // Function to create particles for dopamine burst animation
+    function createParticles(x, y) {
+      for (let i = 0; i < 20; i++) { // Create 20 particles
+        particles.push({
+          x: x,
+          y: y,
+          size: Math.random() * 5 + 2, // Random size
+          speedX: (Math.random() - 0.5) * 8, // Random horizontal speed
+          speedY: (Math.random() - 0.5) * 8, // Random vertical speed
+          color: 'yellow', // Color for particles
+          life: 30 // Particle life
+        });
+      }
+    }
+
+    // Function to update and draw particles
+    function updateParticles() {
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        p.x += p.speedX;
+        p.y += p.speedY;
+        p.life--;
+
+        // Draw the particle
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Remove particles when life ends
+        if (p.life <= 0) {
+          particles.splice(i, 1);
+          i--;
+        }
+      }
+    }
+
     // Function to check for collisions with obstacles
     function checkCollision() {
       for (let i = 0; i < obstacles.length; i++) {
@@ -155,6 +192,7 @@
           vehicleY + vehicleHeight > coin.y
         ) {
           // Player collected the coin
+          createParticles(coin.x + coin.width / 2, coin.y + coin.height / 2); // Trigger particle burst
           coins.splice(i, 1); // Remove coin from array
           score += 10; // Add score for collecting coin
         }
@@ -214,6 +252,9 @@
           coins.splice(i, 1);
         }
       }
+
+      // Update and draw particles (dopamine burst effect)
+      updateParticles();
 
       // Check for collisions with obstacles
       checkCollision();
