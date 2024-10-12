@@ -39,9 +39,14 @@
     canvas.height = window.innerHeight;
 
     // Audio files
-    const switchSound = new Audio('./assets/audio/tone1.ogg');
-    const coinSound = new Audio('./assets/audio/powerUp8.ogg');
-    const gameOverSound = new Audio('./assets/audio/powerUp11.ogg');
+    const switchSound = new Audio('./assets/audio/tone1.mp3');
+    const coinSound = new Audio('./assets/audio/powerUp8.mp3');
+    const gameOverSound = new Audio('./assets/audio/powerUp11.mp3');
+
+    // Load background music
+    const backgroundMusic = new Audio('./assets/audio/8-bit-loop.mp3');
+    backgroundMusic.loop = true; // Loop the background music
+    backgroundMusic.volume = 0.5; // Adjust volume (0.0 to 1.0)
 
     // Game variables
     let laneWidth = canvas.width / 2;
@@ -85,15 +90,53 @@
     // Particles array for dopamine animation
     let particles = [];
 
+    let musicStarted = false; // Track if music has started
+    let soundsAllowed = false; // Track if sound effects are allowed
+
+    // Preload sounds to avoid delays
+    backgroundMusic.load();
+    switchSound.load();
+    coinSound.load();
+    gameOverSound.load();
+
+    // Unlock sound on first interaction (touch or click)
+    function unlockSound() {
+      if (!musicStarted) {
+        backgroundMusic.play();
+        musicStarted = true;
+      }
+
+      if (!soundsAllowed) {
+        // Play and pause each sound effect to unlock it in Safari
+        switchSound.play();
+        switchSound.pause();
+        switchSound.currentTime = 0;
+
+        coinSound.play();
+        coinSound.pause();
+        coinSound.currentTime = 0;
+
+        gameOverSound.play();
+        gameOverSound.pause();
+        gameOverSound.currentTime = 0;
+
+        soundsAllowed = true;
+      }
+    }
+
     // Function to switch lanes on tap/click
     canvas.addEventListener('click', () => {
+      unlockSound()
+
       if (gameOver) return; // No switching if game is over
+
       currentLane = currentLane === 0 ? 1 : 0;
       vehicleX = currentLane === 0 ? laneWidth / 2 - vehicleWidth / 2 : laneWidth + laneWidth / 2 - vehicleWidth / 2;
-
-      // Reset and play switch sound
-      switchSound.currentTime = 0;
-      switchSound.play();
+   
+      if (soundsAllowed) {
+        switchSound.currentTime = 0; // Reset sound position
+        switchSound.play(); // Play switch sound
+      }
     });
 
     // Function to create new obstacles (only one lane at a time with a gap)
