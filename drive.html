@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lane Dash</title>
+  <link href="./assets/css/drive.css" rel="stylesheet">
+</head>
+
+<body>
+
+  <canvas id="gameCanvas"></canvas>
+  <div class="score" id="score">Score: 0</div>
+
+  <!-- Game Over Modal -->
+  <div id="gameOverModal" class="modal">
+    <div class="modal-content">
+      <span id="closeModal" class="close">&times;</span>
+      <!-- <h2>Game Over!</h2> -->
+      <div id="starContainer" class="stars">
+        <!-- Stars will be dynamically added here -->
+      </div>
+      <h2 id="finalScore">Your Score: 0</h2>
+      <div class="share">
+        <h3>Share Your Score!</h3>
+        <!-- Sharing icons (replace links with actual share URLs) -->
+        <a href="#" target="_blank" id="facebookShare"><img src="./assets/img/facebook-color.svg" alt="Facebook"></a>
+        <a href="#" target="_blank" id="twitterShare"><img src="./assets/img/x-color.svg" alt="Twitter"></a>
+        <a href="#" target="_blank" id="whatsappShare"><img src="./assets/img/whatsapp-color.svg" alt="WhatsApp"></a>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript" src="./assets/js/drive.js"></script>
+
+</body>
+
+</html>
