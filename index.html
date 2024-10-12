@@ -124,18 +124,32 @@
       }
     }
 
-    // Function to switch lanes on tap/click
-    canvas.addEventListener('click', () => {
-      unlockSound()
-
+    // Function to handle lane switching
+    function switchLane() {
       if (gameOver) return; // No switching if game is over
 
       currentLane = currentLane === 0 ? 1 : 0;
       vehicleX = currentLane === 0 ? laneWidth / 2 - vehicleWidth / 2 : laneWidth + laneWidth / 2 - vehicleWidth / 2;
-   
+
       if (soundsAllowed) {
         switchSound.currentTime = 0; // Reset sound position
         switchSound.play(); // Play switch sound
+      }
+    }
+
+    // Add both touchstart and click listeners to unlock sound on mobile and desktop
+    canvas.addEventListener('click', unlockSound);
+    canvas.addEventListener('touchstart', unlockSound);
+
+    // Call switchLane on click or touchstart
+    canvas.addEventListener('click', switchLane);
+    canvas.addEventListener('touchstart', switchLane);
+
+    // Add event listener for space key (keydown event)
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' || e.keyCode === 32) { // Space key detection
+        unlockSound();
+        switchLane();
       }
     });
 
