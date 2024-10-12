@@ -1,0 +1,101 @@
+body,
+html {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+}
+
+canvas {
+    display: block;
+    background-color: #555;
+}
+
+.score {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: white;
+    font-size: 24px;
+    font-family: Arial, sans-serif;
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    /* Hidden by default */
+    position: fixed;
+    z-index: 1000;
+    /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    /* Black background with transparency */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 400px;
+    text-align: center;
+    border-radius: 10px;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.stars {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    /* Space between stars and score */
+    height: 100px;
+    /* Enough height to display the stars */
+}
+
+.stars img {
+    width: 50px;
+    height: 50px;
+    margin: 0 10px;
+    /* Space between stars */
+}
+
+/* Specific for three stars, middle one larger */
+.stars.three-stars img.star-2 {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 20px;
+}
+
+.stars.two-stars img {
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.share img {
+    width: 50px;
+    margin: 10px;
+    cursor: pointer;
+}
+
+.share h3 {
+    margin-top: 20px;
+    font-family: Arial, sans-serif;
+}
