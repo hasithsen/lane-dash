@@ -283,7 +283,7 @@ function displayStars(score) {
   }
 }
 
-const gameUrl = "https://lane-dash.pages.dev"; // Replace with your game's URL
+const gameUrl = "https://lane-dash.pages.dev";
 
 function shareOnTwitter(score) {
   const twitterBaseUrl = "https://twitter.com/intent/tweet";
